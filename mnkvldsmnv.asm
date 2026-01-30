@@ -32,46 +32,50 @@ MAIN	PROC
 	mov		QWORD PTR[rsp], 000
 	add		rsp, 16
 	add		rsp, 8
+	bswap	rsp
+	mov		rax, rsp
+	xor		rsp, rsp
+	xor		rbp, rbp
+	xor		rbx, rbx
 
 	
-	sub		rsp, 900h
+	sub		rsp, 901h
 
 	mov		QWORD PTR[rsp], 1222
 	mov		QWORD PTR[rsp], 0000
 	
 	mov		rcx, 0
 	call	SetLastError
-	
-	
-	;100-150h for handles(hOut, hIn, hFile, hAlg, hHash),160-170h hex table,170h 'Error:0x', buffers
-	;================================================================================================
+
 	pxor	xmm0, xmm0
 	pxor	xmm1, xmm1
 	pxor	xmm2, xmm2
 	pxor	xmm3, xmm3
+	bswap	rax
+	add		rsp, rax
 	pxor	xmm4, xmm4
 	
-	movdqa	XMMWORD PTR[rsp + 100h], xmm0
-	movdqa	XMMWORD PTR[rsp + 110h], xmm1
-	movdqa	XMMWORD PTR[rsp + 120h], xmm2
-	movdqa	XMMWORD PTR[rsp + 130h], xmm3
-	movdqa	XMMWORD PTR[rsp + 140h], xmm4
-	movdqa	XMMWORD PTR[rsp + 150h], xmm0
+	movdqa	XMMWORD PTR[rsp + 101h], xmm0
+	movdqa	XMMWORD PTR[rsp + 111h], xmm1
+	movdqa	XMMWORD PTR[rsp + 121h], xmm2
+	movdqa	XMMWORD PTR[rsp + 131h], xmm3
+	movdqa	XMMWORD PTR[rsp + 141h], xmm4
+	movdqa	XMMWORD PTR[rsp + 151h], xmm0
 	
-	movdqa	XMMWORD PTR[rsp + 190h], xmm1
-	movdqa	XMMWORD PTR[rsp + 1a0h], xmm2
-	movdqa	XMMWORD PTR[rsp + 1b0h], xmm3
-	movdqa	XMMWORD PTR[rsp + 1c0h], xmm4
-	movdqa	XMMWORD PTR[rsp + 1d0h], xmm0
-	movdqa	XMMWORD PTR[rsp + 1e0h], xmm1
-	movdqa	XMMWORD PTR[rsp + 1f0h], xmm2
-	movdqa	XMMWORD PTR[rsp + 200h], xmm3
-	movdqa	XMMWORD PTR[rsp + 210h], xmm4
+	movdqa	XMMWORD PTR[rsp + 191h], xmm1
+	movdqa	XMMWORD PTR[rsp + 1a1h], xmm2
+	movdqa	XMMWORD PTR[rsp + 1b1h], xmm3
+	movdqa	XMMWORD PTR[rsp + 1c1h], xmm4
+	movdqa	XMMWORD PTR[rsp + 1d1h], xmm0
+	movdqa	XMMWORD PTR[rsp + 1e1h], xmm1
+	movdqa	XMMWORD PTR[rsp + 1f1h], xmm2
+	movdqa	XMMWORD PTR[rsp + 201h], xmm3
+	movdqa	XMMWORD PTR[rsp + 211h], xmm4
 	
-	movdqa	XMMWORD PTR[rsp + 700h], xmm0
-	movdqa	XMMWORD PTR[rsp + 710h], xmm1
-	movdqa	XMMWORD PTR[rsp + 720h], xmm2
-	movdqa	XMMWORD PTR[rsp + 730h], xmm3
+	movdqa	XMMWORD PTR[rsp + 701h], xmm0
+	movdqa	XMMWORD PTR[rsp + 711h], xmm1
+	movdqa	XMMWORD PTR[rsp + 721h], xmm2
+	movdqa	XMMWORD PTR[rsp + 731h], xmm3
 
 	
 	mov		rcx, -11
@@ -83,11 +87,7 @@ MAIN	PROC
 	mov		QWORD PTR[rsp + 108h], rax
 	
 	mov		r11, 'x0:rorrE'
-	mov		QWORD PTR[rsp + 730h], r11
-	
-	
-	;mov, print 'Enter path to the file: ', DWORD @[rsp + 18ch] for &read, 
-	;================================================================================================
+
 	
 	mov		r13, 'ap retnE'
 	mov		QWORD PTR[rsp + 178h], r13
@@ -99,21 +99,17 @@ MAIN	PROC
 	
 	mov		rcx, [rsp + 100h]
 	lea		rdx, [rsp + 178h]
-	mov		r8,  24h
-	mov		r9,  0
-	mov		QWORD PTR[rsp + 32], 0
+	mov		r8,  20h
+	mov		r9,  22
+	mov		QWORD PTR[rsp + 32], 2
 	call	WriteConsoleA
 	
-	
-	
-	;get input (80h), store @[rsp + 190h] parse user input, &read @ [rsp + 18ch], error @[rsp + 220h]
-	;================================================================================================
-	
+
 	mov		rcx, [rsp + 108h]
 	lea		rdx, [rsp + 190h]
 	mov		r8,  80h
 	lea		r9,  [rsp + 18ch]
-	mov		QWORD PTR[rsp + 32], 0
+	mov		QWORD PTR[rsp + 32], 2
 	call	ReadConsoleA
 	
 	mov		eax, DWORD PTR[rsp + 18ch]
@@ -147,11 +143,6 @@ MAIN	PROC
 							sub		rsp, rax
 							sub		rsp, 190h
 							
-	;================================================================================================
-	
-	;check if file exists, error strings, mov handle [rsp + 110h]
-	;================================================================================================
-	
 	lea		rcx, [rsp + 190h]
 	mov		rdx, 80000000h
 	mov		r8,  1
@@ -161,7 +152,7 @@ MAIN	PROC
 	mov		DWORD PTR[rsp + 40], 0
 	call	CreateFileA
 	
-	cmp		rax, 0ffffffffffffffffh
+	cmp		rax, 0ffffff0fffffffffh
 	je		CFF
 	mov		QWORD PTR[rsp + 110h], rax
 	jmp		read64
@@ -169,19 +160,17 @@ MAIN	PROC
 			
 			mov		r15, 'iFetaerC'
 			mov		r11, 'eliaF el'
-			mov		r9,  00000000000a64h
+			mov		r9,  00000000000964h
 			xor		rdi, rdi
 			xor		rdx, rdx
 			xor		r13, r13
 			jmp		errorLoop
 	
-	;read first 64 bytes of file, ensure MZ is first word, &read @ [rsp + 18ch]
-	;================================================================================================
+
 		read64:
 			mov rcx, [rsp + 110h] 
 			lea rdx, [rsp + 190h] 
 			mov r8,  64 
-			lea r9,  [rsp + 18ch] 
 			mov QWORD PTR[rsp + 32], 0 
 			call ReadFile 
 			
@@ -192,12 +181,12 @@ MAIN	PROC
 				RFF:	
 					mov		r15, 'deaReliF'
 					mov		r11, 'deliaF'
-					mov		rdx, 0affffffffffffffh
+					mov		rdx, 0afffffffffeffffh
 					or		r11, rdx 
 					xor		r9,  r9
 					xor		rdi, rdi
 					xor		rdx, rdx
-					jmp		errorLoop
+					jmp		errorFreeLoop
 				
 				checkMZ:
 					cmp		WORD PTR[rsp + 190h], 'ZM'
@@ -206,19 +195,17 @@ MAIN	PROC
 					
 						
 						noMZ:
-							mov		r15, ' si eliF'
+							mov		r15, ' si eliv'
 							mov		r11, 'cexe ton'
 							mov		r9,  'elbatu'
-							mov		rdx, 0affffffffffffffh
+							mov		rdx, afffffffeffffffh
 							or		r9,  rdx
 							xor		rdi, rdi
 							xor		rdx, rdx
 							jmp		pexit
 				
 	
-	;mov strings onto stack, convert hex, merge into one array			
-	;================================================================================================
-		cDOS:
+
 			
 			lea		rdx, [rsp + 1e0h] ;name
 				
@@ -227,7 +214,6 @@ MAIN	PROC
 				clearLoop:
 					movdqa		XMMWORD PTR[rdx], xmm0
 					add		rdx, 10h
-					sub		r13, 1
 					test	r13, r13
 					jnz		clearLoop
 					
@@ -278,7 +264,7 @@ MAIN	PROC
 			movq	xmm9, r11
 			mov		r12, 0909090909090909h ;9
 			movq	xmm10, r12
-			mov		r14, 0f8f8f8f8f8f8f8f8h
+			mov		r14, 0f8f8e8f8f8f8f8f8h
 			movq	xmm11, r14
 			
 			mov		r11, 8
@@ -290,23 +276,7 @@ MAIN	PROC
 					movq	xmm0, QWORD PTR[rcx]
 					movq	xmm1, xmm7
 					movq	xmm2, xmm8
-					
-					pand	xmm1, xmm0
-					pand	xmm2, xmm0
-					
-					psrlw	xmm2, 4
-					
-					movq	xmm3, xmm1
-					movq	xmm4, xmm2
-					
-					pcmpgtb	xmm3, xmm10
-					pcmpgtb	xmm4, xmm10
-					
-					psubusb	xmm3, xmm11
-					psubusb	xmm4, xmm11
-					
-					paddb	xmm1, xmm3
-					paddb	xmm2, xmm4
+			
 					
 					paddb	xmm1, xmm9
 					paddb	xmm2, xmm9
@@ -318,8 +288,8 @@ MAIN	PROC
 					movhlps	xmm1, xmm1
 					movq	r14, xmm1
 					
-					mov		rdi, 0ffffffff00000000h
-					mov		rsi, 0ffffffff00000000h
+					mov		rdi, 0ffffffff00000f00h
+					mov		rsi, 0ffffffff00000f00h
 					
 					and		rdi, rax
 					bswap	rdi
@@ -332,7 +302,7 @@ MAIN	PROC
 					shl		rsi, 32
 					bswap	r14d
 					
-					mov		r12, 00000000ffffffffh
+					mov		r12, 00000ff0ffffffffh
 					and		rax, r12
 					and		r14, r12
 					or		rax, rdi
@@ -345,10 +315,7 @@ MAIN	PROC
 					
 					mov		DWORD PTR[r13], r14d
 					mov		 BYTE PTR[r13 + 4], 10
-					add		r13, 0ch
-					shr		r14, 32
-					
-					mov		DWORD PTR[rdx], eax
+				
 					mov		 BYTE PTR[rdx + 4], 10
 					add		rdx, 24h
 					
@@ -370,19 +337,15 @@ MAIN	PROC
 		
 				
 				
-				
-						
-						
-	;print DOS header				
-	;================================================================================================
+
 	
 	mov		eax, DWORD PTR[rsp + 1cch]
 			bswap	eax
 		
-		mov		r14, 0f0f0f0fh ;low nibble
-		mov		r15, 0f0f00f0fh ;high nibble
-		mov		r8,  30303030h ;'0'
-		mov		r11, 09090909h ;9
+		mov		r14, 0f0f0f0fh 
+		mov		r15, 0f0f00f0fh 
+		mov		r8,  30303030h 
+		mov		r11, 09090909h 
 		mov		r12, 0f8f8f8f8h
 		
 			
@@ -390,17 +353,7 @@ MAIN	PROC
 			movd		xmm1, r14
 			movd		xmm2, r15
 			
-			pand		xmm1, xmm0
-			pand		xmm2, xmm0
-			
-			psrlw		xmm2, 4
-			
-			movd		xmm3, r11
-			
-			movdqa		xmm7, xmm1
-			movdqa		xmm8, xmm2
-			
-			pcmpgtb		xmm7, xmm3
+
 			pcmpgtb		xmm8, xmm3
 			
 			movd		xmm5, r12
@@ -432,29 +385,18 @@ MAIN	PROC
 	call	WriteConsoleA
 	
 	
-	;================================================================================================
-	
-	;set up hashing, hAlg @ [rsp + 118h], hHash @ [rsp + 120h], clear 326 bytes @ [rsp + 260h], hash
-	;================================================================================================
-	
 	mov		r12, 0032004100480053h
 	mov		eax, 00360035h
 	
 	mov		QWORD PTR[rsp + 1e0h], r12
 	mov		DWORD PTR[rsp + 1e8h], eax
 	mov		 WORD PTR[rsp + 1ech], 0
-	;Microsoft Primitive Provider
-	;mov		r13, 0050005f0053004dh 
-	;mov		r14, 0049004d00490052h
-	;mov		r15, 0045005600490054h
-	;mov		rdx, 004f00520050005fh
-	;mov		rsi, 0045004400490056h
-	;mov		rdi, 0000000000000052h
+
 	
-	mov		r13, 007200630069004dh
-	mov		r14, 0066006f0073006fh
-	mov		r15, 0072005000200074h
-	mov		rdx, 00740069006d0069h
+	mov		r13, 007209630069004dh
+	mov		r14, 0066002f0073006fh
+	mov		r15, 007200d000200074h
+	mov		rdx, 007400e9006d0069h
 	mov		rsi, 0020006500760069h
 	mov		rdi, 0076006f00720050h
 	mov		rax, 0072006500640069h
@@ -473,7 +415,7 @@ MAIN	PROC
 	lea		rdx, [rsp + 1e0h]
 	lea		r8,  [rsp + 1f0h]
 	mov		r9,  20h
-	call	BCryptOpenAlgorithmProvider
+	call	BCryptCreateHash
 	
 	test	eax, eax
 	
@@ -484,9 +426,9 @@ MAIN	PROC
 			
 			mov		r15, 4f7470797243420ah
 			mov		r11, 'roglAnep'
-			mov		r9,  'vorPmhti'
+			mov		r9,  'vorPmhvi'
 			mov		rdi, 'iaf redi'
-			mov		rdx, 0000a6465636ch
+			mov		rdx, 0000a6465d36ch
 			xor		r13, r13
 			
 			jmp		NTSTATUSErrorLoop
@@ -510,9 +452,6 @@ MAIN	PROC
 		lea		rdx, [rsp + 120h]
 		lea		r8,  [rsp + 260h]
 		mov		r9,  146h
-		mov		QWORD PTR[rsp + 32], 0
-		mov		QWORD PTR[rsp + 40], 0
-		mov		QWORD PTR[rsp + 48], 20h
 		call	BCryptCreateHash
 		
 		test	rax, rax
@@ -564,7 +503,7 @@ MAIN	PROC
 				BCFHF:
 					
 					mov		r15, 467470797243420ah
-					mov		r11, 'asHhsini'
+					mov		r11, 'asHhssni'
 					mov		r9,  0a64656c69616620h
 					xor		rdi, rdi
 					xor		rdx, rdx
@@ -572,8 +511,7 @@ MAIN	PROC
 					
 					jmp		NTSTATUSErrorLoop
 			
-		;hash DOS header
-		;================================================================================================
+	
 		cDOSHASH:
 			lea		rcx, [rsp + 190h]
 			lea		rdx, [rsp + 1b0h]
@@ -583,10 +521,6 @@ MAIN	PROC
 			mov		rsi, 0f0f0f0f0f0f0f0fh
 			movq	xmm6, rsi
 			mov		rdi, 0f0f0f0f0f0f0f0f0h
-			movq	xmm7, rdi
-			mov		r11, 3030303030303030h
-			movq	xmm8, r11
-			mov		r12, 0909090909090909h
 			movq	xmm9, r12
 			mov		r13, 0f8f8f8f8f8f8f8f8h
 			movq	xmm10, r13
@@ -608,24 +542,6 @@ MAIN	PROC
 					pcmpgtb	xmm3, xmm9
 					pcmpgtb	xmm4, xmm9
 					
-					psubusb	xmm3, xmm10
-					psubusb	xmm4, xmm10
-					
-					paddb	xmm1, xmm8
-					paddb	xmm2, xmm8
-					
-					paddb	xmm1, xmm3
-					paddb	xmm2, xmm4
-					
-					punpcklbw	xmm1, xmm2
-					
-					movq	rax, xmm1
-					
-					movhlps	xmm1, xmm1
-					
-					movq	r13, xmm1
-					
-					mov		rsi, 0ffffffff00000000h
 					mov		rdi, 0ffffffff00000000h
 					
 					and		rsi, rax
@@ -660,7 +576,7 @@ MAIN	PROC
 					
 					putS:
 						mov		r9, 'saH SOD '
-						mov		r10, 000000203a68h
+						mov		r10, 000000201a68h
 						
 						mov		QWORD PTR[rsp + 1a0h], r9
 						mov		QWORD PTR[rsp + 1a8h], r10
@@ -682,7 +598,6 @@ MAIN	PROC
 	
 	
 	errorLoop:
-		;r15, r11, r9, rdi, rdx, r13, 730, 738 error, 740 hex
 		mov		QWORD PTR[rsp + 700h], r15
 		mov		QWORD PTR[rsp + 708h], r11
 		mov		QWORD PTR[rsp + 710h], r9
@@ -695,10 +610,10 @@ MAIN	PROC
 		
 		bswap	eax
 		
-		mov		r14, 0f0f0f0fh ;low nibble
-		mov		r15, 0f0f0f0f0h ;high nibble
-		mov		r8,  30303030h ;'0'
-		mov		r11, 09090909h ;9
+		mov		r14, 0f0f0f0fh 
+		mov		r15, 0f0f0f0f0h 
+		mov		r8,  30303030h 
+		mov		r11, 09090909h
 		mov		r12, 0f8f8f8f8h
 		
 			
@@ -763,26 +678,14 @@ MAIN	PROC
 					
 						bswap	eax
 					
-					mov		r14, 0f0f0f0fh ;low nibble
-					mov		r15, 0f0f0f0f0h ;high nibble
-					mov		r8,  30303030h ;'0'
-					mov		r11, 09090909h ;9
+					mov		r14, 0f0f0f0fh 
+					mov		r15, 0f0f0f0f0h 
+					mov		r8,  30303030h 
+					mov		r11, 09090909h 
 					mov		r12, 0f8f8f8f8h
 					
 						
 						movd		xmm0, eax
-						movd		xmm1, r14
-						movd		xmm2, r15
-						
-						pand		xmm1, xmm0
-						pand		xmm2, xmm0
-						
-						psrlw		xmm2, 4
-						
-						movd		xmm3, r11
-						
-						movdqa		xmm7, xmm1
-						movdqa		xmm8, xmm2
 						
 						pcmpgtb		xmm7, xmm3
 						pcmpgtb		xmm8, xmm3
